@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  mongo-db:
+    image: bitnami/mongodb
+    container_name: reactive-mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USER: readmin
+      MONGO_INITDB_ROOT_PASSWORD: readmin
+      MONGO_INITDB_DATABASE: reactive_admin
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:

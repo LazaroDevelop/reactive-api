@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: reactive-api
+  data:
+    mongodb:
+      database: reactive_admin
+      username: readmin
+      password: readmin
+      uri: mongodb://localhost:27017
+
+server:
+  port: ${PORT0:9091}
