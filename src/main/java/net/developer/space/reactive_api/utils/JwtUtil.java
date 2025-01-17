@@ -5,16 +5,18 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+
 @Component
-public class JwtUtil implements InitializingBean {
+public class JwtUtil implements InitializingBean, TokenProvider {
     private Key key;
 
     @Override
@@ -47,15 +49,22 @@ public class JwtUtil implements InitializingBean {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username) {
-        Map<String, Object> claims = new HashMap<>();
+    public String generateToken(String username, Map<String, Object> claims) {
+
         return createToken(claims, username);
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
                 .signWith(key).compact();
+    }
+
+    public boolean isValidToken(String token){
+        return !isTokenExpired(token);
     }
 
     public boolean validateToken(String token, String username) {
@@ -63,5 +72,12 @@ public class JwtUtil implements InitializingBean {
         return (extractedUsername.equals(username) && !isTokenExpired(token));
     }
 
+    public List<String> extractRoles(String token){
+        return extractClaim(token, claims -> (List<String>) claims.get("roles"));
+    }
 
+    @Override
+    public String generateToken(String username) {
+        return generateToken(username, Map.of());
+    }
 }

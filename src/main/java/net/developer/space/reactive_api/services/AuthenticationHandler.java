@@ -7,8 +7,15 @@ import net.developer.space.reactive_api.dto.AuthResponse;
 import net.developer.space.reactive_api.dto.OTPResponse;
 import net.developer.space.reactive_api.entity.User;
 import net.developer.space.reactive_api.utils.JwtUtil;
+import net.developer.space.reactive_api.utils.TokenProvider;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -19,10 +26,10 @@ import reactor.core.publisher.Mono;
 public class AuthenticationHandler implements IAuthenticationHandler {
 
     private String secret;
-    private final JwtUtil util;
+    private final TokenProvider tokenProvider;
     private final IUserService userService;
     private final IEmailVerificationService verificationService;
-
+    private final ReactiveAuthenticationManager authenticationManager;
 
     @Override
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -33,7 +40,7 @@ public class AuthenticationHandler implements IAuthenticationHandler {
                             if (user.getPassword().equals(auth.getPassword())) {
                                 this.secret = verificationService.generateVerificationCode();
                                 verificationService.sendVerificationCode(auth.getUsername(), secret);
-                                return ResponseEntity.ok(new AuthResponse(util.generateToken(auth.getUsername())));
+                                return ResponseEntity.ok(new AuthResponse(tokenProvider.generateToken(auth.getUsername())));
                             } else {
                                 throw new BadCredentialsException("Invalid username or password");
                             }

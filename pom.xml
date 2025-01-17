@@ -43,6 +43,12 @@
 			<version>3.4.1</version> <!-- Make sure this matches your Spring Boot version -->
 		</dependency>
 
+		<dependency>
+			<groupId>dev.samstevens.totp</groupId>
+			<artifactId>totp</artifactId>
+			<version>1.7.1</version>
+		</dependency>
+
        <!--		JWT Deps       -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
