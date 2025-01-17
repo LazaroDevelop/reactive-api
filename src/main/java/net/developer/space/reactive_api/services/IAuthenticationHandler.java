@@ -8,4 +8,5 @@ public interface IAuthenticationHandler {
     Mono<ServerResponse> login(ServerRequest request);
     Mono<ServerResponse> signup(ServerRequest request);
     Mono<ServerResponse> protectedEndpoint(ServerRequest request);
- }
+    Mono<ServerResponse> verifyOtp(ServerRequest request);
+}

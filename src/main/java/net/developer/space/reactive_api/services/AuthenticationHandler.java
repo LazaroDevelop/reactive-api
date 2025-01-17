@@ -1,8 +1,10 @@
 package net.developer.space.reactive_api.services;
 
+import com.mongodb.internal.connection.Server;
 import lombok.RequiredArgsConstructor;
 import net.developer.space.reactive_api.dto.AuthRequest;
 import net.developer.space.reactive_api.dto.AuthResponse;
+import net.developer.space.reactive_api.dto.OTPResponse;
 import net.developer.space.reactive_api.entity.User;
 import net.developer.space.reactive_api.utils.JwtUtil;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class AuthenticationHandler implements IAuthenticationHandler {
 
+    private String secret;
     private final JwtUtil util;
     private final IUserService userService;
+    private final IEmailVerificationService verificationService;
+
 
     @Override
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -26,6 +31,8 @@ public class AuthenticationHandler implements IAuthenticationHandler {
                 .flatMap(auth -> userService.findByUsername(auth.getUsername())
                         .map(user -> {
                             if (user.getPassword().equals(auth.getPassword())) {
+                                this.secret = verificationService.generateVerificationCode();
+                                verificationService.sendVerificationCode(auth.getUsername(), secret);
                                 return ResponseEntity.ok(new AuthResponse(util.generateToken(auth.getUsername())));
                             } else {
                                 throw new BadCredentialsException("Invalid username or password");
@@ -40,6 +47,20 @@ public class AuthenticationHandler implements IAuthenticationHandler {
                 .bodyToMono(User.class)
                 .flatMap(user -> ServerResponse.ok().body(userService.storeUser(user), User.class))
                 .switchIfEmpty(ServerResponse.noContent().build());
+    }
+
+    @Override
+    public Mono<ServerResponse> verifyOtp(ServerRequest request){
+        return request.bodyToMono(OTPResponse.class)
+                .flatMap(otp -> {
+                    boolean result = verificationService.verifyCode(otp.getEmail(), otp.getOtp(), secret);
+
+                    if(result){
+                        return ServerResponse.ok().bodyValue("User authenticated successfully");
+                    }else{
+                        return Mono.error(new BadCredentialsException("Invalid or expired OTP"));
+                    }
+                });
     }
 
     @Override

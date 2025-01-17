@@ -7,6 +7,19 @@ spring:
       username: readmin
       password: readmin
       uri: mongodb://localhost:27017
+  mail:
+    host: smtp.gmail.com
+    password: amgjhcnxqztooskp
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    username: lazaronoelg@gmail.com
 
 server:
   port: ${PORT0:9091}
+
+

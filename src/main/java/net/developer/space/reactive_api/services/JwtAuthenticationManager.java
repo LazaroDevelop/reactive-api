@@ -17,7 +17,6 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
     private final JwtUtil util;
     private final IUserService userService;
-    private final ReactiveUserDetailsService userDetailsService;
 
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {

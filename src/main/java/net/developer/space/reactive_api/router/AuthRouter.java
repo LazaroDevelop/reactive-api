@@ -20,6 +20,7 @@ public class AuthRouter {
         return RouterFunctions
                 .route(RequestPredicates.POST("api/v1/auth/login"), handler::login)
                 .andRoute(RequestPredicates.POST("api/v1/auth/signup"), handler::signup)
-                .andRoute(RequestPredicates.GET("api/v1/protected"), handler::protectedEndpoint);
+                .andRoute(RequestPredicates.GET("api/v1/protected"), handler::protectedEndpoint)
+                .andRoute(RequestPredicates.POST("api/v1/otp/verify"), handler::verifyOtp);
     }
 }
