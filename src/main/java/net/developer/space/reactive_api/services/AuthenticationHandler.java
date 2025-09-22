@@ -36,15 +36,16 @@ public class AuthenticationHandler implements IAuthenticationHandler {
         return request
                 .bodyToMono(AuthRequest.class)
                 .flatMap(auth -> userService.findByUsername(auth.getUsername())
-                        .map(user -> {
+                        .<ResponseEntity<AuthResponse>>handle((user, sink) -> {
                             if (user.getPassword().equals(auth.getPassword())) {
                                 this.secret = verificationService.generateVerificationCode();
                                 verificationService.sendVerificationCode(auth.getUsername(), secret);
-                                return ResponseEntity.ok(new AuthResponse(tokenProvider.generateToken(auth.getUsername())));
+                                sink.next(ResponseEntity.ok(new AuthResponse(tokenProvider.generateToken(auth.getUsername()))));
                             } else {
-                                throw new BadCredentialsException("Invalid username or password");
+                                sink.error(new BadCredentialsException("Invalid username or password"));
                             }
-                        }).flatMap(res -> ServerResponse.ok().bodyValue(res))
+                        })
+                        .flatMap(res -> ServerResponse.ok().bodyValue(res))
                         .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid username or password"))));
     }
 
@@ -62,11 +63,7 @@ public class AuthenticationHandler implements IAuthenticationHandler {
                 .flatMap(otp -> {
                     boolean result = verificationService.verifyCode(otp.getEmail(), otp.getOtp(), secret);
 
-                    if(result){
-                        return ServerResponse.ok().bodyValue("User authenticated successfully");
-                    }else{
-                        return Mono.error(new BadCredentialsException("Invalid or expired OTP"));
-                    }
+                    return result ? ServerResponse.ok().bodyValue("User authenticated successfully") : Mono.error(new BadCredentialsException("Invalid or expired OTP"));
                 });
     }
 
