@@ -6,7 +6,6 @@ import net.developer.space.reactive_api.utils.JwtToken;
 import net.developer.space.reactive_api.utils.JwtUtil;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

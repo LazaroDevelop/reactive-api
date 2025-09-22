@@ -17,7 +17,7 @@ public class ServiceRouter {
         return RouterFunctions
                 .route(RequestPredicates.POST("api/v1/student/add"), handler::addStudent)
                 .andRoute(RequestPredicates.PUT("api/v1/student/update"), handler::updateStudent)
-                .andRoute(RequestPredicates.POST("api/v1/student/all"), handler::getAllStudents)
+                .andRoute(RequestPredicates.GET("api/v1/student/all"), handler::getAllStudents)
                 .andRoute(RequestPredicates.DELETE("api/v1/student/delete"), handler::deleteStudent);
     }
 
