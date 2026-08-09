@@ -17,7 +17,7 @@ public class ServiceHandler implements IServiceHandler{
     @Override
     public Mono<ServerResponse> getAllStudents(ServerRequest request) {
         return ServerResponse.ok().body(repository.findAll(), Student.class)
-                .switchIfEmpty(ServerResponse.ok().bodyValue("No data found"));
+                .switchIfEmpty(ServerResponse.noContent().build());
     }
 
     @Override
@@ -32,7 +32,7 @@ public class ServiceHandler implements IServiceHandler{
         String id = request.pathVariable("id");
         return repository.findById(id)
                 .flatMap(item -> ServerResponse.ok().bodyValue(item))
-                .switchIfEmpty(ServerResponse.noContent().build());
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     @Override
