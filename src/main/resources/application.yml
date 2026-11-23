@@ -8,8 +8,8 @@ spring:
       password: readmin
       uri: mongodb://localhost:27017
   mail:
-    host: smtp.gmail.com
-    password: amgjhcnxqztooskp
+    host: ${MAIL_HOST}
+    password: ${MAIL_PASSWORD}
     port: 587
     properties:
       mail:
